@@ -10,7 +10,9 @@ const studentsDataSchema = mongoose.Schema({
     trim: true,
     required:[true, "please write your password"],
   },
-  course:String,
+  fdw:{
+    type: Boolean,
+  },
   toolSrack:{
     type: Array,
   },
