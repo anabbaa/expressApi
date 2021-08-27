@@ -14,7 +14,13 @@ mongoose
   });
 
 
+// const students = require("./router/student");
+// app.use("/students", students);
 
+app.get("/", (req,res)=>{
+  res.status(200).send("Welcome to our app");
+
+})
 
 
 module.exports = app;
