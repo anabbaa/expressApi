@@ -1,32 +1,59 @@
 // middelware
 const express = require("express");
-const studentsData = require("../model/studentsModel");
-//display
-const studentInfo = async (req,res,next)=>{
-    let stuednt;
+const StudentsData = require("../model/studentsModel");
+
+//display one 
+const displayStudent = async (req,res, next)=>{
+let student;
+  try{
+ student = await StudentsData.findOne({ name: req.params.name});
+ console.log(student);
+
+if (student == null)
+return res.status(404).json({ message: "student NOT FOUND." });
+
+  }
+  catch(err){
+    res.status(500).json({ message: err.message });
+  }
+  res.student = student;
+  next();
+};
+//display all
+const studentInfo = async (req,res)=>{
+
 try {
-    stuednt = await studentsData.find();
-    res.status(200).json(stuednt.map((onestudent)=>{
-        return{
-            studentId: onestudent._Id,
-            studentPassword: onestudent.studentPassword,
-            studentAge: onestudent.studentAge,
-            toolStack: onestudent.toolStack,
-          email: onestudent.email,
-          fbw: onestudent.fbw,
+    const students = await StudentsData.find();
+    console.log(students);
 
-        };
-        
-    })
+    res.status(200).json(students.map((student)=>{
+      const {_id, name, pass, fdw, toolStack, email, age} = student;
+      return{
+        id: _id,
+        name: name,
+        pass: pass,
+        fdw: fdw,
+        toolStack: toolStack,
+        email: email,
+        age: age,
+        request:{
+          type: "GET",
+            url: `http://localhost:5000/students/${student.name}`,
+        },
+
+
+      };
+    }));
+
+    }
     
-  );
+  
 
-}
+
 
   catch (err) {
     res.status(500).json({ message: err.message });
   }
-  next();
 };
 //age
 const studentAge = async (req, res)=>{
@@ -75,6 +102,15 @@ const stacktools = async (req, res)=>{
 
 //functions
 //add new student
+// {
+//   name: "Ahmed",
+//   pass: "1233",
+//   fdw: "44",
+//   "toolstack": ["html", "css", "react" ],
+//   "age": "33",
+      // "email": "hgfddddd@gmail.com",
+//   "add": "hamburg",
+// }
 
 const addStudent = async (req, res)=>{
   const student = new studentsData({
@@ -83,12 +119,14 @@ const addStudent = async (req, res)=>{
     fdw:  req.body.fdw,
     toolStack: req.body.toolStack,
     age: req.body.age,
+    email: req.body.email,
     add: req.body.name,
 
   });
   try{
 const newstudent = await student.save();
-res.status(201).json(newEmployee);
+console.log(newstudent);
+res.status(200).json(newstudent);
 
   }
   catch(err){
@@ -101,31 +139,10 @@ res.status(201).json(newEmployee);
 //update upon name
 const updateName = async (req, res)=>{
   try{
-await studentsData.updateOne({
-  name: req.body,name,
-},
-{set:{
-  name: req.body.name,
-},
-
-}
-);
-res.status(200).json({ message: "a student has updated" });
-
- }
-  catch(err){
-    res.status(400).json({ message: err.message });
-
-  }
-};
-
-// update all
-
-const updateAll = async (req, res)=>{
-  try{
-await studentsData.updateMany({
-name: req.body.name},
-{set:{
+await StudentsData.updateOne({
+name: req.params.name},
+{
+  $set:{
   name: req.body.name,
 },
 
@@ -140,21 +157,33 @@ res.status(200).json({ message: "many have updated" });
   }
 };
 
-// show  on upon nasme
-const displayUponName = async (req, res)=>{
-  try {
-const student = new studentsData.find({
-  name: req.parmas.name
-});
-res.status(200).json({ message: "coll you find me" });
+// update all
 
+const updateAll = async (req, res)=>{
+  try{
+await StudentsData.updateMany({
+name: req.params.name},
+{
+  $set:{
+  name: req.body.name,
+},
+
+}
+);
+res.status(200).json({ message: "many have updated" });
 
   }
-  catch(err){
+  catch (err){
     res.status(400).json({ message: err.message });
 
   }
 };
+
+
+const displayUponName = async (req, res) => {
+  res.status(200).json(res.student);
+};
+
 
 module.exports = {
   studentInfo,
@@ -165,5 +194,6 @@ module.exports = {
   updateName,
   updateAll,
   displayUponName,
+  displayStudent,
 
 };

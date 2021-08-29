@@ -26,4 +26,4 @@ required: [true, "please write your age"],
 
 });
 
-module.exports = mongoose.mode("StudentsDatas", studentsDataSchema);
+module.exports = mongoose.model("StudentsData", studentsDataSchema);
