@@ -5,8 +5,8 @@ const router = express.Router();
  const {
     studentInfo,
     studentAge,
+    alpha,
     studentBelong,
-    firstLetter,
     addStudent,
     updateName,
     updateAll,
@@ -14,7 +14,7 @@ const router = express.Router();
     displayStudent,
  } = require("../controllers/studentsController");
 
- router.route("/").get(studentInfo).post(addStudent);
+ router.route("/").get(studentInfo, studentBelong, studentAge).post(addStudent);
 
  router.route("/:name").get(displayStudent,displayUponName)
   .patch(displayStudent,updateName);
@@ -22,19 +22,4 @@ const router = express.Router();
   router.route("/update/:name").put(displayStudent, updateAll);
   
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router;

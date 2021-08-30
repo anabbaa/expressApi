@@ -11,7 +11,7 @@ const studentsDataSchema = mongoose.Schema({
     required:[true, "please write your password"],
   },
   fdw:{
-    type: String,
+    type: Number,
   },
   toolStack:{
     type: Array,
@@ -19,7 +19,7 @@ const studentsDataSchema = mongoose.Schema({
   email: String,
 
   age:{
-type: String,
+type: Number,
 required: [true, "please write your age"],
   },
   add:String
