@@ -11,19 +11,14 @@ const studentsDataSchema = mongoose.Schema({
     required:[true, "please write your password"],
   },
   fdw:{
-    type: Number,
+    type: String,
+    required:[true, "please write your FDW course"],
+    default: "48",
   },
-  toolStack:{
-    type: Array,
-  },
+  toolStack: Array,
   email: String,
-
-  age:{
-type: Number,
-required: [true, "please write your age"],
-  },
-  add:String
-
+  age:String,
+  add:String,
 });
 
 module.exports = mongoose.model("StudentsData", studentsDataSchema);

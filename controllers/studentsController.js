@@ -1,35 +1,16 @@
 // middelware
 const express = require("express");
+const { toolStackSort } = require("../middelware/studentMiddelware");
 const StudentsData = require("../model/studentsModel");
 
-//display one 
-const displayStudent = async (req,res, next)=>{
-let student;
-  try{
- student = await StudentsData.findOne({ name: req.params.name});
-//  console.log(student);
-
-if (student == null)
-return res.status(404).json({ message: "student NOT FOUND." });
-
-  }
-  catch(err){
-    res.status(500).json({ message: err.message });
-  }
-  res.student = student;
-  next();
-};
 //display all
 const studentInfo = async (req,res)=>{
-
 try {
     const students = await StudentsData.find();
     console.log(students);
 
     res.status(200).json(students.map((student)=>{
       const {_id, name, pass, fdw, toolStack, email, age} = student;
-  
-      
       return{
         id: _id,
         name: name,
@@ -43,93 +24,22 @@ try {
             url: `http://localhost:5000/students/${student.name}`,
         },
 
-
       };
     }));
-
+    res.status(200).json(student);
     }
-    
-  
-
-
-
   catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-//age 
-const studentAge = async (req, res, next)=>{
-  
-    try {
-    const students  =  await StudentsData.find();
-    console.log(students);
-    res.status(200).json(students.map((student)=>{
-      const {_id, name, pass, fdw, toolStack, email, age} = student;
-      if (student.age > 18){
-        res.status(200).json({ message: "you are big enough", data: res.student});
 
-      }
-      else{
-        res.status(500).json({ message: "sorry you are too young", data: res.student});
+//add one
 
-      };
-    
-    }));
-    
-    }
-    catch  (err) {
-            res.status(400).json({ message: err.message });
-          }
-          next();
-    };
-    //fdw
-    const studentBelong = async (req, res, next)=>{
-    try {
-      const students  =  await StudentsData.find();
-      res.status(200).json(students.map((student)=>{
-        const {_id, name, pass, fdw, toolStack, email, age} = student;
-        if (student.fdw){
-          res.status(200).json({ message: "cool you are swith us", data: res.student });
-  
-        }
-        else{
-          res.status(200).json({ message: "sorry you are in anothsr course", data: res.student});
-  
-        };
-      
-      }));
-      
-      }
-      catch  (err) {
-              res.status(400).json({ message: err.message });
-            }
-            next();
-      };
-//first letter ans sort tools
-      const alpha= async (req, res, next)=>{
-        try {
-          const students  =  await StudentsData.find();
-          res.status(200).json(students.map((student)=>{
-            const {_id, name, pass, fdw, toolStack, email, age} = student;
-            student.name = student.name[0].toUpperCase() 
-            + student.name.slice(1);
-            student.toolStack.sort({toolStack: 1});
-            res.status(200).json(student);
-          })); 
-          }
-          catch  (err) {
-                  res.status(400).json({ message: err.message });
-                }
-                next();
-          };
-        
-    
-    
+const displayUponName = async (req, res) => {
+  res.status(200).json(res.student);
+};
 
-    
-      
 
-//functions
 //add new student
 // {
 //   name: "Ahmed",
@@ -167,49 +77,65 @@ res.status(200).json(newstudent);
 
 //update upon name
 const updateName = async (req, res)=>{
-  try{
-await StudentsData.updateOne({
-name: req.params.name,
-toolStack: req.params.name
-
-
-},
-
-
-{
-  $set:{
-  name: req.body.name,
-  toolStack: req.body.toolStack,
-
   
 
-},
+    const {name, age, email, add , fdw, pass, toolStack} = req.body;
+    if(name) {
+      res.student.name = name;
+    }if(age) {
+      res.student.name = age;
+    }
+    if(add) {
+      res.student.name = add;
+    }
+    if(email) {
+      res.student.name = email;
+    }
+    if(toolStack) {
+      res.student.name = toolStack;
+    }
+    if(pass) {
+      res.student.name = pass;
+    }
+    if(fdw) {
+      res.student.name = fdw;
+    }
+    try{
+    await res.student.save();
+    res.status(200).json({ message: "student has been updated" , data: res.student});
 
-}
-);
-res.status(200).json({ message: "many have updated" });
-
-  }
-  catch (err){
-    res.status(400).json({ message: err.message });
+  }catch(err){
+    res.status(500).json({ message: err.message }); 
 
   }
 };
 
-// update all
+// update document
 
 const updateAll = async (req, res)=>{
   try{
-await StudentsData.updateMany({
-name: req.params.name},
+await StudentsData.updateOne({
+name: req.params.name,
+add: req.params.add,
+pass: req.params.pass,
+email: req.params.email,
+fdw: req.params.fdw,
+age: req.params.age,
+toolStack: req.params.toolStack
+},
 {
   $set:{
   name: req.body.name,
+  add: req.body.add,
+  age: req.body.age,
+  email: req.body.email,
+  fdw: req.body.fdw,
+  pass: req.body.pass,
+  toolStack: req.body.toolStack,
 },
-
 }
 );
-res.status(200).json({ message: "many have updated" });
+res.status(200).json({ message: "many have updated" , data: res.student});
 
   }
   catch (err){
@@ -218,21 +144,10 @@ res.status(200).json({ message: "many have updated" });
   }
 };
 
-
-const displayUponName = async (req, res) => {
-  res.status(200).json(res.student);
-};
-
-
 module.exports = {
   studentInfo,
-  studentAge,
-  studentBelong,
+  displayUponName,
   addStudent,
   updateName,
   updateAll,
-  displayUponName,
-  displayStudent,
-  alpha,
-
 };
