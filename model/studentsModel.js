@@ -1,24 +1,31 @@
 const mongoose = require("mongoose");
-const studentsDataSchema = mongoose.Schema({
-  name:{
+const userDataSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    required: [true, "Please enter a username"],
+  },
+  userPass: {
+    type: String,
+    required: [true, "Please enter a password"],
+  },
+  age: {
+    type: {},
+    trim: true,
+    required: [true, "Please enter your age"],
+  },
+  fbw: {
+    type: {},
+    trim: true,
+    required: [true, "Please enter your FbW number"],
+  },
+  toolStack: {
+    type: Array,
+  },
+  email: {
     type: String,
     trim: true,
-    required: [true, "please write your name"],
+    required: [true, "Please enter your email"],
   },
-  pass:{
-    type: String,
-    trim: true,
-    required:[true, "please write your password"],
-  },
-  fdw:{
-    type: String,
-    required:[true, "please write your FDW course"],
-    default: "48",
-  },
-  toolStack: Array,
-  email: String,
-  age:String,
-  add:String,
 });
 
-module.exports = mongoose.model("StudentsData", studentsDataSchema);
+module.exports = mongoose.model("userdatacollections", userDataSchema);

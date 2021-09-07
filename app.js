@@ -1,26 +1,34 @@
+
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
 app.use(morgan("dev"));
+// Allow Express to understand json
 app.use(express.json());
+// Routes
+const userRouter = require("./router/user");
+app.use("/user", userRouter);
 
+const displayRouter = require("./router/display");
+app.use("/display", displayRouter);
+// Mongoose
 const mongoose = require("mongoose");
-const DB_URL = process.env.DB_URL;
 mongoose
-  .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true } )
-  .then(console.log("DB is connected 😎"))
-  .catch((error) => {
-    console.log(`There was a problem ${error.message}`);
+  .connect(process.env.DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(console.log("DB is connected"))
+  .catch((err) => {
+    console.log(`There was error ${err.message}`);
   });
 
-
- const students = require("./router/students");
- app.use("/students", students);
-
-app.get("/", (req,res)=>{
-  res.status(200).send("Welcome to our app");
-
-})
-
+app.get("/", (req, res) => {
+  try {
+    res.status(200).send("Welcome to our app 😎");
+  } catch (err) {
+    res.status(err.status).json(err.message);
+  }
+});
 
 module.exports = app;

@@ -1,153 +1,119 @@
-// middelware
-const express = require("express");
-const { toolStackSort } = require("../middelware/studentMiddelware");
-const StudentsData = require("../model/studentsModel");
-
-//display all
-const studentInfo = async (req,res)=>{
-try {
-    const students = await StudentsData.find();
-    console.log(students);
-
-    res.status(200).json(students.map((student)=>{
-      const {_id, name, pass, fdw, toolStack, email, age} = student;
-      return{
-        id: _id,
-        name: name,
-        pass: pass,
-        fdw: fdw,
-        toolStack: toolStack,
-        email: email,
-        age: age,
-        request:{
-          type: "GET",
-            url: `http://localhost:5000/students/${student.name}`,
-        },
-
-      };
-    }));
-    res.status(200).json(student);
-    }
-  catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-//add one
-
-const displayUponName = async (req, res) => {
-  res.status(200).json(res.student);
-};
 
 
-//add new student
-// {
-//   name: "Ahmed",
-//   pass: "1233",
-//   fdw: "44",
-//   "toolstack": ["html", "css", "react" ],
-//   "age": "33",
-      // "email": "hgfddddd@gmail.com",
-//   "add": "hamburg",
-// }
+const UserData = require("../model/studentsModel");
 
-const addStudent = async (req, res)=>{
-  const student = new studentsData({
-    name: req.body.name,
-    pass: req.body.pass,
-    fdw:  req.body.fdw,
-    toolStack: req.body.toolStack,
-    age: req.body.age,
-    email: req.body.email,
-    add: req.body.add,
+const userController = {};
 
-  });
-  try{
-const newstudent = await student.save();
-console.log(newstudent);
-res.status(200).json(newstudent);
+// GET all users
+// URL  http://localhost:5000/users
 
-  }
-  catch(err){
-    res.status(400).json({
-      message: err.message,
-    });
-  }
-};
-
-//update upon name
-const updateName = async (req, res)=>{
+userController.getAllUsers = async (req,res)=>{
+  try {
+      const students = await UserData.find();
+      console.log(students);
   
-
-    const {name, age, email, add , fdw, pass, toolStack} = req.body;
-    if(name) {
-      res.student.name = name;
-    }if(age) {
-      res.student.name = age;
+      res.status(200).json(students.map((student)=>{
+        const {_id, userName, userPass, fbw, toolStack, add, email, age} = student;
+        return{
+          id: _id,
+          userName: userName,
+          userPass: userPass,
+          fbw: fbw,
+          toolStack: toolStack,
+          email: email,
+          age: age,
+          add: add,
+          request:{
+            type: "GET",
+              url: `http://localhost:5000/students/${student.userName}`,
+          },
+  
+        };
+      }));
+      res.status(200).json(student);
+      }
+    catch (err) {
+      res.status(500).json({ message: err.message });
     }
-    if(add) {
-      res.student.name = add;
-    }
-    if(email) {
-      res.student.name = email;
-    }
-    if(toolStack) {
-      res.student.name = toolStack;
-    }
-    if(pass) {
-      res.student.name = pass;
-    }
-    if(fdw) {
-      res.student.name = fdw;
-    }
-    try{
-    await res.student.save();
-    res.status(200).json({ message: "student has been updated" , data: res.student});
+  };
 
-  }catch(err){
-    res.status(500).json({ message: err.message }); 
 
-  }
-};
-
-// update document
-
-const updateAll = async (req, res)=>{
-  try{
-await StudentsData.updateOne({
-name: req.params.name,
-add: req.params.add,
-pass: req.params.pass,
-email: req.params.email,
-fdw: req.params.fdw,
-age: req.params.age,
-toolStack: req.params.toolStack
-},
-{
-  $set:{
-  name: req.body.name,
-  add: req.body.add,
-  age: req.body.age,
-  email: req.body.email,
-  fdw: req.body.fdw,
-  pass: req.body.pass,
-  toolStack: req.body.toolStack,
-},
-}
-);
-res.status(200).json({ message: "many have updated" , data: res.student});
-
-  }
-  catch (err){
+// Add new user
+userController.addNewUser = async (req, res) => {
+  const user = new UserData({
+    userName: req.body.userName.toLowerCase(),
+    userPass: req.body.userPass,
+    age: req.body.age,
+    fbw: req.body.fbw,
+    toolStack: req.body.toolStack,
+    email: req.body.email,
+  });
+  try {
+    const newUser = await user.save();
+    res.status(201).json({
+      message: "New user being added ✅",
+      newUser,
+    });
+  } catch (err) {
     res.status(400).json({ message: err.message });
-
   }
 };
 
-module.exports = {
-  studentInfo,
-  displayUponName,
-  addStudent,
-  updateName,
-  updateAll,
+// Update all user data
+userController.updateUserData = async (req, res) => {
+  try {
+    await UserData.updateOne(
+      { userName: req.params.userName },
+      {
+        $set: {
+          userName: req.body.userName,
+          userPass: req.body.userPass,
+          fbw: req.body.fbw,
+          age: req.body.age,
+          toolStack: req.body.toolStack,
+          email: req.body.email,
+        },
+      }
+    );
+    res.status(200).json({ message: "User being updated ✅" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
+
+// Update some user data
+userController.patchUserData = async (req, res) => {
+  try {
+    const userByName = await UserData.findOneAndUpdate(
+      { userName: req.params.name },
+      {
+        userName: req.body.userName || res.user.userName,
+        userPass: req.body.userPass || res.user.userPass,
+        age: req.body.age || res.user.age,
+        fbw: req.body.fbw || res.user.fbw,
+        toolStack: req.body.toolStack || res.user.toolStack,
+        email: req.body.email || res.user.email,
+      },
+      {
+        new: true,
+      }
+    );
+    res
+      .status(200)
+      .json({ message: "Some user data got changes ✅", userByName });
+  } catch (err) {
+    res.status(err.status).json({ message: err.message });
+  }
+};
+
+// Display one user
+userController.displayUser = async ( req, res) => {
+  console.log(res.user);
+  try {
+    res.status(200).json(res.user);
+  } catch (err) {
+    res.status(err.status).json({ message: err.message });
+  }
+};
+
+module.exports = userController;
